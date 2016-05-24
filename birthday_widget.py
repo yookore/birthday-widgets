@@ -4,6 +4,7 @@ from cassandra.cqlengine import connection
 from datetime import datetime, time
 from birthdaywidget_app.broker import Broker
 from birthdaywidget import settings
+from threading import Timer
 
 from cassandra.query import dict_factory, SimpleStatement
 
@@ -20,7 +21,6 @@ session.row_factory = dict_factory
 
 def send_message(item, verb_id):
 
-    print item
     msg = '''{
                 "actor":    "%s",
                 "object":   "%s",
@@ -63,3 +63,13 @@ def get_profiles():
 
 if __name__ == "__main__":
     get_profiles()
+
+current_date = datetime.today()
+
+run_time = current_date.replace(day = current_date.day , hour=1, minute=0, second=0, microsecond=0)
+
+run = Timer(run_time, get_profiles)
+run.start()
+
+
+

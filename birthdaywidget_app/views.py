@@ -28,11 +28,11 @@ class DefaultMixin(object):
 
 class BirthdayListViewSet(DefaultMixin,viewsets.ModelViewSet):
     serializer_class = BirthdaySerializer
-    # def create(self, request, *args, **kwargs):
-    #     pass
+
     def get_queryset(self):
         friends = []
         _list = []
+        today = datetime.now()
 
         username = self.kwargs['username']
 
@@ -42,7 +42,6 @@ class BirthdayListViewSet(DefaultMixin,viewsets.ModelViewSet):
         results = db.query(q , returns=(client.Node, str, client.Node))
 
         for r in results:
-            # print r[0]['username']
             friends.append(r[0]['username'])
 
         # print friends
@@ -51,17 +50,10 @@ class BirthdayListViewSet(DefaultMixin,viewsets.ModelViewSet):
                 query = "SELECT * FROM yookos_upm.userprofile WHERE username = '%s'" %i
                 result = session.execute(query)
 
-                # print ">>>>>>>> ", result
-                # print "<><><><> ", type(result[0])
-
                 if result[0]['birthdate'] == '' or result[0]['birthdate'] is None:
                     print "---" ,result[0]['username']
 
-                # elif result[0]['birthdate'].month == today.month and result[0]['birthdate'].day == today.day :
-                #     print '###', result[0]['firstname'] , result[0]['birthdate']
-                #     list.append({result[0]['firstname'] , result[0]['birthdate']})
-
-                elif result[0]['birthdate'].month == 1 and result[0]['birthdate'].day == 1 :
+                elif result[0]['birthdate'].month == today.month and result[0]['birthdate'].day == today.day :
                     print ">>>>>> ", result[0]['firstname']
 
                     item = {'firstname':result[0]['firstname'] ,'lastname':result[0]['lastname'],'username':result[0]['username'],'userid':result[0]['userid'],'birthdate': result[0]['birthdate'] ,'avatarurl': result[0]['avatarurl']}
@@ -78,107 +70,6 @@ class BirthdayListViewSet(DefaultMixin,viewsets.ModelViewSet):
             return sorted(_list,key=getKey, reverse=False)
 
 class MonthBirthdayListViewSet(DefaultMixin,viewsets.ModelViewSet):
-
-    serializer_class = BirthdaySerializer
-    # pagination_class = CustomPagination
-
-    def list(self, request, username=None, month=None):
-        friends = []
-        _list = []
-
-        if len(month)== 1 or len(month)==2:
-
-            month = int(month)
-
-            if month <= 12:
-
-                q = 'MATCH (u:User)-[r:FRIEND]->(m:User) WHERE u.username="%s" RETURN m ' %username
-
-                # "db" as defined above
-                results = db.query(q , returns=(client.Node, str, client.Node))
-
-                for r in results:
-                    friends.append(r[0]['username'])
-
-                if len(friends) != 0:
-                    for i in friends:
-                        query = "SELECT * FROM yookos_upm.userprofile WHERE username = '%s'" %i
-                        result = session.execute(query)
-
-                        if result[0]['birthdate'] == '' or result[0]['birthdate'] is None:
-                            print "---" ,result[0]['username']
-
-                        elif result[0]['birthdate'].month == month :
-                            print ">>>>>> ", result[0]['firstname']
-
-                            item = {'firstname':result[0]['firstname'] ,'lastname':result[0]['lastname'],'username':result[0]['username'],'userid':result[0]['userid'],'birthdate': result[0]['birthdate'] ,'avatarurl': result[0]['avatarurl']}
-                            print "====Results===: ", item
-
-                            _list.append(item)
-                        else:
-                            print '###!!!', result[0]['firstname'] , result[0]['birthdate']
-                            # print " NO one is birthdaying today."
-
-                    serializer = BirthdaySerializer(_list, many=True)
-
-                    return Response (serializer.data , status.HTTP_200_OK)
-            else:
-                return Response({'message':'%s is not a valid month ' %month} , status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({'message': 'month can only have one or two number'},status.HTTP_400_BAD_REQUEST)
-
-class DateBirthdayListViewSet(DefaultMixin,viewsets.ModelViewSet):
-
-    serializer_class = BirthdaySerializer
-    # pagination_class = CustomPagination
-
-    def list(self, request, username=None, month=None , day=None):
-        friends = []
-        _list = []
-
-        if len(month)== 1 or len(month)==2 and len(day)==1 or len(day)==2:
-
-            month = int(month)
-            day = int(day)
-
-            if month <= 12 and day <= 31:
-
-                q = 'MATCH (u:User)-[r:FRIEND]->(m:User) WHERE u.username="%s" RETURN m ' %username
-
-                # "db" as defined above
-                results = db.query(q , returns=(client.Node, str, client.Node))
-
-                for r in results:
-                    friends.append(r[0]['username'])
-
-                if len(friends) != 0:
-                    for i in friends:
-                        query = "SELECT * FROM yookos_upm.userprofile WHERE username = '%s'" %i
-                        result = session.execute(query)
-
-                        if result[0]['birthdate'] == '' or result[0]['birthdate'] is None:
-                            print "---" ,result[0]['username']
-
-                        elif result[0]['birthdate'].month == month and result[0]['birthdate'].day == day :
-                            print ">>>>>> ", result[0]['firstname']
-
-                            item = {'firstname':result[0]['firstname'] ,'lastname':result[0]['lastname'],'username':result[0]['username'],'userid':result[0]['userid'],'birthdate': result[0]['birthdate'] ,'avatarurl': result[0]['avatarurl']}
-                            print "====Results===: ", item
-
-                            _list.append(item)
-                        else:
-                            print '###!!!', result[0]['firstname'] , result[0]['birthdate']
-                            # print " NO one is birthdaying today."
-
-                    serializer = BirthdaySerializer(_list, many=True)
-
-                    return Response (serializer.data , status.HTTP_200_OK)
-            else:
-                return Response({'message':'incorrect date' %month} , status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({'message': 'month or day can only have one or two number'},status.HTTP_400_BAD_REQUEST)
-
-class ListViewSet(viewsets.ModelViewSet):
     serializer_class = BirthdaySerializer
 
     def get_queryset(self):
@@ -230,14 +121,120 @@ class ListViewSet(viewsets.ModelViewSet):
 
                     return sorted(_list,key=getKey, reverse=False)
             else:
-                resp = {'message':'<"%s"> is not a valid month ' %month}
-                return Response(resp , status.HTTP_400_BAD_REQUEST)
+                print 'WRONG MONTH'
+                return Response(data={'message':'%s is not a valid month ' %month} , status=status.HTTP_400_BAD_REQUEST)
         else:
-            res = 'month can only have one or two number'
-            return Response(res,status.HTTP_400_BAD_REQUEST)
+            print 'INVALID MONTH'
+            return Response('month can only have 1 or 2 number',status.HTTP_400_BAD_REQUEST)
 
-#         res = {'error': 404, 'errorMessage': 'Not found', 'errors': ''}
-#             return Response(res, status=status.HTTP_404_NOT_FOUND)
+
+class DateBirthdayListViewSet(DefaultMixin,viewsets.ModelViewSet):
+
+    serializer_class = BirthdaySerializer
+
+    def get_queryset(self):
+        friends = []
+        _list = []
+
+        username = self.kwargs['username']
+        month = self.kwargs['month']
+        day = self.kwargs['day']
+
+        if len(month)== 1 or len(month)==2 and len(day)==1 or len(day)==2:
+
+            month = int(month)
+            day = int(day)
+
+            if month <= 12 and day <= 31:
+
+                q = 'MATCH (u:User)-[r:FRIEND]->(m:User) WHERE u.username="%s" RETURN m ' %username
+
+                # "db" as defined above
+                results = db.query(q , returns=(client.Node, str, client.Node))
+
+                for r in results:
+                    friends.append(r[0]['username'])
+
+                if len(friends) != 0:
+                    for i in friends:
+                        query = "SELECT * FROM yookos_upm.userprofile WHERE username = '%s'" %i
+                        result = session.execute(query)
+
+                        if result[0]['birthdate'] == '' or result[0]['birthdate'] is None:
+                            print "---" ,result[0]['username']
+
+                        elif result[0]['birthdate'].month == month and result[0]['birthdate'].day == day :
+                            print ">>>>>> ", result[0]['firstname']
+
+                            item = {'firstname':result[0]['firstname'] ,'lastname':result[0]['lastname'],'username':result[0]['username'],'userid':result[0]['userid'],'birthdate': result[0]['birthdate'] ,'avatarurl': result[0]['avatarurl']}
+                            print "====Results===: ", item
+
+                            _list.append(item)
+                        else:
+                            print '###!!!', result[0]['firstname'] , result[0]['birthdate']
+                            # print " NO one is birthdaying today."
+
+                    serializer = BirthdaySerializer(_list, many=True)
+                    _result = sorted(serializer.data, key=getKey, reverse=False)
+
+                    return Response (_result , status.HTTP_200_OK)
+            else:
+                return Response('incorrect date' , status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response('month or day can only have 1 or 2 number',status.HTTP_400_BAD_REQUEST)
+
+#         ListViewSet
+
+class ListViewSet(DefaultMixin,viewsets.ModelViewSet):
+
+    serializer_class = BirthdaySerializer
+
+    def list(self, request, username=None, month=None):
+        friends = []
+        _list = []
+
+        if len(month)== 1 or len(month)==2:
+
+            month = int(month)
+
+            if month <= 12:
+
+                q = 'MATCH (u:User)-[r:FRIEND]->(m:User) WHERE u.username="%s" RETURN m ' %username
+
+                # "db" as defined above
+                results = db.query(q , returns=(client.Node, str, client.Node))
+
+                for r in results:
+                    friends.append(r[0]['username'])
+
+                if len(friends) != 0:
+                    for i in friends:
+                        query = "SELECT * FROM yookos_upm.userprofile WHERE username = '%s'" %i
+                        result = session.execute(query)
+
+                        if result[0]['birthdate'] == '' or result[0]['birthdate'] is None:
+                            print "---" ,result[0]['username']
+
+                        elif result[0]['birthdate'].month == month :
+                            print ">>>>>> ", result[0]['firstname']
+
+                            item = {'firstname':result[0]['firstname'] ,'lastname':result[0]['lastname'],'username':result[0]['username'],'userid':result[0]['userid'],'birthdate': result[0]['birthdate'] ,'avatarurl': result[0]['avatarurl']}
+                            print "====Results===: ", item
+
+                            _list.append(item)
+                        else:
+                            print '###!!!', result[0]['firstname'] , result[0]['birthdate']
+                            # print " NO one is birthdaying today."
+
+                    serializer = BirthdaySerializer(_list, many=True)
+
+                    return Response(sorted(serializer.data, key=getKey, reverse=False) , status.HTTP_200_OK)
+            else:
+                return Response(data={'message':'%s is not a valid month ' %month} , status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'month can only have one or two number'},status.HTTP_400_BAD_REQUEST)
+
+
 
 
 

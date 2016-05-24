@@ -129,7 +129,8 @@ STATICFILES_DIRS = (
 )
 
 REST_FRAMEWORK = {
-
+    'DEFAULT_PAGINATION_CLASS': 'birthdaywidget_app.pagination.CustomPagination',
+    'PAGE_SIZE': 15
 }
 
 MEDIA_ROOT = '/static/media/'
