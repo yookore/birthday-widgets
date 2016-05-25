@@ -44,22 +44,20 @@ def send_message(item, verb_id):
 def get_profiles():
     # get today's date
     today = datetime.now()
-    print "Today ", today
 
     query = "SELECT * FROM yookos_upm.userprofile"
     statement = SimpleStatement(query_string=query, fetch_size=100)
 
     for item in session.execute(statement):
-        print item
 
         if item.get('birthdate') == '' or item.get('birthdate') is None:
-            print "---" ,item.get('username')
+            print "Does not have birth date : " ,item.get('username')
             # continue
         elif item.get('birthdate').month == today.month and item.get('birthdate').day == today.day :
-            print '###', item.get('firstname') , item.get('birthdate')
+            print 'Celebrate birthday : ', item.get('firstname') , item.get('birthdate')
             send_message(item,18)
         else:
-            print " NO one is birthdaying today."
+            print "Not birthdaying today : ",item.get('username')
 
 if __name__ == "__main__":
     get_profiles()
