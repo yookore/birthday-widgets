@@ -83,10 +83,12 @@ class MonthBirthdayListViewSet(DefaultMixin,viewsets.ModelViewSet):
         print " $$$$ : ", len(month)
 
         if len(month)== 1 or len(month)==2:
+            print 'Month OK'
 
             month = int(month)
 
             if month <= 12:
+                print 'OK again'
 
                 print " Month ", type(month)
 
@@ -122,7 +124,7 @@ class MonthBirthdayListViewSet(DefaultMixin,viewsets.ModelViewSet):
                     return sorted(_list,key=getKey, reverse=False)
             else:
                 print 'WRONG MONTH'
-                return Response(data={'message':'%s is not a valid month ' %month} , status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={'message':'%s is not a valid month ' %month} , status = status.HTTP_400_BAD_REQUEST)
         else:
             print 'INVALID MONTH'
             return Response('month can only have 1 or 2 number',status.HTTP_400_BAD_REQUEST)
@@ -172,12 +174,8 @@ class DateBirthdayListViewSet(DefaultMixin,viewsets.ModelViewSet):
                             _list.append(item)
                         else:
                             print '###!!!', result[0]['firstname'] , result[0]['birthdate']
-                            # print " NO one is birthdaying today."
 
-                    serializer = BirthdaySerializer(_list, many=True)
-                    _result = sorted(serializer.data, key=getKey, reverse=False)
-
-                    return Response (_result , status.HTTP_200_OK)
+                    return sorted(_list, key=getKey, reverse=False)
             else:
                 return Response('incorrect date' , status.HTTP_400_BAD_REQUEST)
         else:
