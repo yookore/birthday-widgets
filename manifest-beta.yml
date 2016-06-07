@@ -1,0 +1,12 @@
+---
+applications:
+- name: birthdaywidget
+  instances: 3
+  memory: 2G
+  services:
+      - cassandra-birthdaywidget
+      - rabbitmq
+      - redis
+domains:
+  - yookos.com
+  - apps.yookosapps.com

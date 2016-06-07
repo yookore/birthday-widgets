@@ -1,0 +1,9 @@
+---
+applications:
+- name: birthdaywidget
+  instances: 2
+  memory: 1G
+  services:
+      - cassandra-dev
+      - rabbitmq
+      - redis
