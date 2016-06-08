@@ -22,11 +22,11 @@ test = ListViewSet.as_view({
 
 
 urlpatterns = patterns('',
-    url(r'^birthdays/(?P<username>[\w.-@]+)/$', birthday ,name='birthday-list'),
+    url(r'^birthdays/(?P<username>[\w.@-]+)/$', birthday ,name='birthday-list'),
 
-    url(r'^birthdays/(?P<username>[\w.-@]+)/(?P<month>[0-9]+)/$', month ,name='month-list'),
+    url(r'^birthdays/(?P<username>[\w.@-]+)/(?P<month>[0-9]+)/$', month ,name='month-list'),
 
-    url(r'^birthdays/(?P<username>[\w.-@]+)/(?P<month>[0-9]+)/test/$', test ,name='month-list'),
+    url(r'^birthdays/(?P<username>[\w.@-]+)/(?P<month>[0-9]+)/test/$', test ,name='month-list'),
 
-    url(r'^birthdays/(?P<username>[\w.-@]+)/(?P<month>[0-9]+)/(?P<day>[0-9]+)/$', date ,name='date-list'),
+    url(r'^birthdays/(?P<username>[\w.@-]+)/(?P<month>[0-9]+)/(?P<day>[0-9]+)/$', date ,name='date-list'),
 )
